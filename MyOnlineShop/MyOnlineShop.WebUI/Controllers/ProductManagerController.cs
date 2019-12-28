@@ -1,4 +1,5 @@
-﻿using MyOnlineShop.Core.Models;
+﻿using MyOnlineShop.Core.Contracts;
+using MyOnlineShop.Core.Models;
 using MyOnlineShop.Core.ViewModels;
 using MyOnlineShop.DA.Inmemory;
 using System;
@@ -12,19 +13,19 @@ namespace MyOnlineShop.WebUI.Controllers
     public class ProductManagerController : Controller
     {
 
-        InMemoryRepository<Product> context;
-        InMemoryRepository<ProductCategory> ProductCategorycontext;
+        IRepository<Product> Productcontext;
+        IRepository<ProductCategory> ProductCategorycontext;
 
-        public ProductManagerController()
+        public ProductManagerController(IRepository<Product> productcontext, IRepository<ProductCategory> productCategorycontext)
         {
-            context = new InMemoryRepository<Product>();
-            ProductCategorycontext = new InMemoryRepository<ProductCategory>();
+            Productcontext = productcontext;
+            ProductCategorycontext = productCategorycontext;
 
         }
         // GET: ProductManager
         public ActionResult Index()
         {
-            List<Product> products = context.Collection().ToList();
+            List<Product> products = Productcontext.Collection().ToList();
             return View(products);
         }
 
@@ -46,8 +47,8 @@ namespace MyOnlineShop.WebUI.Controllers
             }
             else
             {
-                context.Insert(product);
-                context.Commit();
+                Productcontext.Insert(product);
+                Productcontext.Commit();
                 return RedirectToAction("Index");
             }
 
@@ -55,7 +56,7 @@ namespace MyOnlineShop.WebUI.Controllers
 
         public ActionResult Edit(string Id)
         {
-            Product product = context.Find(Id);
+            Product product = Productcontext.Find(Id);
             if (product == null)
             {
                 return HttpNotFound();
@@ -73,7 +74,7 @@ namespace MyOnlineShop.WebUI.Controllers
         [HttpPost]
         public ActionResult Edit(Product product, string Id)
         {
-            Product productToEdit = context.Find(Id);
+            Product productToEdit = Productcontext.Find(Id);
 
             if (productToEdit == null)
             {
@@ -89,14 +90,14 @@ namespace MyOnlineShop.WebUI.Controllers
                 productToEdit.Description = product.Description;
                 productToEdit.Name = product.Name;
                 productToEdit.Price = product.Price;
-                context.Commit();
+                Productcontext.Commit();
                 return RedirectToAction("Index");
             }
         }
 
         public ActionResult Delete(string Id)
         {
-            Product productToDelete = context.Find(Id);
+            Product productToDelete = Productcontext.Find(Id);
 
             if (productToDelete == null)
             {
@@ -112,7 +113,7 @@ namespace MyOnlineShop.WebUI.Controllers
         [ActionName("Delete")]
         public ActionResult ConfirmDelete(string Id)
         {
-            Product productToDelete = context.Find(Id);
+            Product productToDelete = Productcontext.Find(Id);
 
             if (productToDelete == null)
             {
@@ -120,8 +121,8 @@ namespace MyOnlineShop.WebUI.Controllers
             }
             else
             {
-                context.Delete(Id);
-                context.Commit();
+                Productcontext.Delete(Id);
+                Productcontext.Commit();
                 return RedirectToAction("Index");
             }
         }

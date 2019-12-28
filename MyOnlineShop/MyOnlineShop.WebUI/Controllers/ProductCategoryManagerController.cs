@@ -1,4 +1,5 @@
-﻿using MyOnlineShop.Core.Models;
+﻿using MyOnlineShop.Core.Contracts;
+using MyOnlineShop.Core.Models;
 using MyOnlineShop.DA.Inmemory;
 using System;
 using System.Collections.Generic;
@@ -10,15 +11,15 @@ namespace MyOnlineShop.WebUI.Controllers
 {
     public class ProductCategoryManagerController : Controller
     {
-        InMemoryRepository<ProductCategory> context;
-        public ProductCategoryManagerController()
+        IRepository<ProductCategory> ProductCategorycontext;
+        public ProductCategoryManagerController(IRepository<ProductCategory> productCategorycontext)
         {
-            context = new InMemoryRepository<ProductCategory>();
+            ProductCategorycontext = productCategorycontext;
         }
         // GET: ProductCategoryManager
         public ActionResult Index()
         {
-            List<ProductCategory> productcats = context.Collection().ToList();
+            List<ProductCategory> productcats = ProductCategorycontext.Collection().ToList();
             return View(productcats);
         }
 
@@ -37,8 +38,8 @@ namespace MyOnlineShop.WebUI.Controllers
             }
             else
             {
-                context.Insert(productcats);
-                context.Commit();
+                ProductCategorycontext.Insert(productcats);
+                ProductCategorycontext.Commit();
                 return RedirectToAction("Index");
             }
 
@@ -46,7 +47,7 @@ namespace MyOnlineShop.WebUI.Controllers
 
         public ActionResult Edit(string Id)
         {
-            ProductCategory productcats = context.Find(Id);
+            ProductCategory productcats = ProductCategorycontext.Find(Id);
             if (productcats == null)
             {
                 return HttpNotFound();
@@ -60,7 +61,7 @@ namespace MyOnlineShop.WebUI.Controllers
         [HttpPost]
         public ActionResult Edit(ProductCategory productcats, string Id)
         {
-            ProductCategory productcatToEdit = context.Find(Id);
+            ProductCategory productcatToEdit = ProductCategorycontext.Find(Id);
 
             if (productcatToEdit == null)
             {
@@ -73,14 +74,14 @@ namespace MyOnlineShop.WebUI.Controllers
                     return View(productcats);
                 }
                 productcatToEdit.Category = productcats.Category;
-                context.Commit();
+                ProductCategorycontext.Commit();
                 return RedirectToAction("Index");
             }
         }
 
         public ActionResult Delete(string Id)
         {
-            ProductCategory productcatToDelete = context.Find(Id);
+            ProductCategory productcatToDelete = ProductCategorycontext.Find(Id);
 
             if (productcatToDelete == null)
             {
@@ -96,7 +97,7 @@ namespace MyOnlineShop.WebUI.Controllers
         [ActionName("Delete")]
         public ActionResult ConfirmDelete(string Id)
         {
-            ProductCategory productcatToDelete = context.Find(Id);
+            ProductCategory productcatToDelete = ProductCategorycontext.Find(Id);
 
             if (productcatToDelete == null)
             {
@@ -104,8 +105,8 @@ namespace MyOnlineShop.WebUI.Controllers
             }
             else
             {
-                context.Delete(Id);
-                context.Commit();
+                ProductCategorycontext.Delete(Id);
+                ProductCategorycontext.Commit();
                 return RedirectToAction("Index");
             }
         }
